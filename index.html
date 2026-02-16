@@ -6,7 +6,7 @@
     <title>Next Train</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Archivo+Black&display=swap&family=Raleway&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Archivo+Black&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -76,7 +76,7 @@
         }
 
         body {
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             background: #0d1117;
             background-image: 
                 repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.01) 2px, rgba(255,255,255,0.01) 4px);
@@ -123,7 +123,7 @@
             color: var(--dark);
             padding: 10px 18px;
             border-radius: 8px;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.85rem;
             font-weight: 700;
             text-transform: uppercase;
@@ -539,9 +539,28 @@
                 padding: 20px 20px 16px;
             }
 
-            .theme-toggle {
+            .header-controls {
                 position: static;
-                width: auto;
+                width: 100%;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .theme-toggle,
+            .disruptions-link {
+                font-size: 0.75rem;
+                padding: 8px 14px;
+            }
+
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .footer {
+                left: 18px;
+                right: auto;
+                transform: none;
+                bottom: 18px;
             }
 
             body.simple-mode .station-panel {
@@ -551,21 +570,38 @@
 
             .station-selector {
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
+                padding: 12px 16px;
             }
 
             .control-group {
                 width: 100%;
-                flex-direction: column;
-                gap: 6px;
+                flex-direction: row;
+                gap: 8px;
+                justify-content: space-between;
+            }
+
+            .control-group label {
+                font-size: 0.75rem;
+                min-width: auto;
             }
 
             .control-group select {
-                width: 100%;
+                width: auto;
+                flex: 1;
+                min-width: 120px;
+                font-size: 0.85rem;
+                padding: 8px 32px 8px 12px;
             }
 
             .theme-colors {
                 justify-content: center;
+                gap: 6px;
+            }
+
+            .theme-color-box {
+                width: 28px;
+                height: 28px;
             }
 
             .container.cols-2,
@@ -618,7 +654,7 @@
             color: white;
             padding: 10px 16px;
             border-radius: 6px;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
@@ -627,6 +663,59 @@
 
         .control-group select {
             min-width: 180px;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+        }
+
+        body.simple-mode .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%232d2d2d' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="cream-teal"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2302343F' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="sage-purple"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23331B3F' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="yellow-navy"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230A174E' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="lime-forest"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2307553B' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="slate-blue"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2350586C' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="peach-brown"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23815854' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="gold-navy"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231E4174' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="mint-navy"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300203F' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="yellow-black"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23101820' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.simple-mode[data-theme="sky-coral"] .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23B1624E' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        }
+
+        body.kindle-mode .control-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000000' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
         }
 
         .control-group select:hover,
@@ -905,7 +994,7 @@
             display: none;
             flex-direction: column;
             z-index: 1000;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
         .chat-container.active {
@@ -986,7 +1075,7 @@
             color: white;
             padding: 10px 12px;
             border-radius: 6px;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
         }
 
@@ -1006,7 +1095,7 @@
             color: var(--dark);
             padding: 12px;
             border-radius: 6px;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
@@ -1027,7 +1116,7 @@
             border: none;
             padding: 15px 25px;
             border-radius: 50px;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.95rem;
             font-weight: 700;
             cursor: pointer;
@@ -1052,7 +1141,7 @@
             border: 2px solid var(--yellow);
             padding: 15px 20px;
             border-radius: 12px;
-            font-family: 'Raleway', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 0.9rem;
             font-weight: 600;
             z-index: 999;
@@ -1398,7 +1487,7 @@
     <script>
         let allStations = [];
         let stationCount = 2;
-        let selectedStations = [1093, 1109];
+        let selectedStations = [1028, 1107];
         let currentChatStation = null;
 
         const CITY_LOOP_STATIONS = [

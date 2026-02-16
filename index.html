@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Train</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --yellow: #F5EC5D;
+            --neon-pink: #FF006E;
+            --neon-blue: #00D9FF;
+            --purple: #8338EC;
+            --dark: #0F0F1E;
+            --orange: #FF6B00;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--dark);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Animated background */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 110, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(131, 56, 236, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(245, 236, 93, 0.08) 0%, transparent 70%);
+            animation: bgPulse 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes bgPulse {
+            0% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.1) rotate(2deg);
+                opacity: 0.8;
+            }
+        }
+
+        /* Decorative elements */
+        .decor-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid;
+            opacity: 0.3;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .decor-circle:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            border-color: var(--yellow);
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .decor-circle:nth-child(2) {
+            width: 200px;
+            height: 200px;
+            border-color: var(--neon-pink);
+            bottom: -50px;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .decor-circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            border-color: var(--neon-blue);
+            top: 30%;
+            right: -80px;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-30px) rotate(180deg);
+            }
+        }
+
+        /* Main container */
+        .container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        /* Station panels */
+        .station-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 40px;
+            position: relative;
+            border-right: 2px solid rgba(245, 236, 93, 0.3);
+            overflow: hidden;
+        }
+
+        .station-panel:last-child {
+            border-right: none;
+        }
+
+        /* Station name styling */
+        .station-name {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(3rem, 8vw, 7rem);
+            color: var(--yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 0.9;
+            animation: slideIn 1s ease-out backwards;
+            text-shadow: 
+                0 0 20px rgba(245, 236, 93, 0.5),
+                0 0 40px rgba(245, 236, 93, 0.3);
+        }
+
+        .station-panel:first-child .station-name {
+            animation-delay: 0.2s;
+        }
+
+        .station-panel:last-child .station-name {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Direction label */
+        .direction {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out 0.8s backwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Time display */
+        .time-display {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .minutes {
+            font-family: 'Anton', sans-serif;
+            font-size: clamp(8rem, 20vw, 18rem);
+            color: white;
+            line-height: 1;
+            text-align: center;
+            animation: scaleIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) 1s backwards;
+            position: relative;
+            text-shadow: 
+                0 0 30px rgba(255, 255, 255, 0.5),
+                0 5px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .station-panel:first-child .minutes {
+            animation-delay: 1.2s;
+        }
+
+        .station-panel:last-child .minutes {
+            animation-delay: 1.4s;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .minutes-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            color: var(--yellow);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            text-align: center;
+            margin-top: 10px;
+            animation: fadeIn 1s ease-out 1.6s backwards;
+        }
+
+        /* Status indicators */
+        .status {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(0.8rem, 1.8vw, 1.1rem);
+            padding: 12px 24px;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-top: 20px;
+            animation: fadeIn 1s ease-out 1.8s backwards;
+            border: 2px solid;
+        }
+
+        .status.loading {
+            color: var(--neon-blue);
+            border-color: var(--neon-blue);
+            background: rgba(0, 217, 255, 0.1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .status.upcoming {
+            color: var(--yellow);
+            border-color: var(--yellow);
+            background: rgba(245, 236, 93, 0.1);
+        }
+
+        .status.soon {
+            color: var(--orange);
+            border-color: var(--orange);
+            background: rgba(255, 107, 0, 0.1);
+            animation: urgentPulse 1s ease-in-out infinite;
+        }
+
+        .status.now {
+            color: var(--neon-pink);
+            border-color: var(--neon-pink);
+            background: rgba(255, 0, 110, 0.1);
+            animation: urgentPulse 0.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes urgentPulse {
+            0%, 100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 currentColor;
+            }
+            50% {
+                opacity: 0.8;
+                box-shadow: 0 0 20px 5px currentColor;
+            }
+        }
+
+        /* Destination info */
+        .destination {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 30px;
+            text-align: center;
+            animation: fadeIn 1s ease-out 2s backwards;
+        }
+
+        /* Error state */
+        .error {
+            color: var(--neon-pink);
+            font-size: clamp(1rem, 2vw, 1.3rem);
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Header ticker */
+        .header-ticker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(245, 236, 93, 0.95);
+            color: var(--dark);
+            padding: 15px 0;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(1.2rem, 2.5vw, 2rem);
+            letter-spacing: 0.2em;
+            text-align: center;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.8s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Last updated */
+        .last-updated {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(0.7rem, 1.2vw, 0.9rem);
+            color: rgba(255, 255, 255, 0.4);
+            z-index: 100;
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+
+            .station-panel {
+                border-right: none;
+                border-bottom: 2px solid rgba(245, 236, 93, 0.3);
+            }
+
+            .station-panel:last-child {
+                border-bottom: none;
+            }
+
+            .header-ticker {
+                font-size: 1.2rem;
+                padding: 12px 0;
+            }
+        }
+
+        /* Pulse animation for when trains update */
+        @keyframes updateFlash {
+            0%, 100% {
+                background: transparent;
+            }
+            50% {
+                background: rgba(245, 236, 93, 0.1);
+            }
+        }
+
+        .station-panel.updated {
+            animation: updateFlash 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="decor-circle"></div>
+        <div class="decor-circle"></div>
+        <div class="decor-circle"></div>
+    </div>
+
+    <div class="header-ticker">
+        🚆 NEXT TRAIN TO THE CITY 🚆
+    </div>
+
+    <div class="container">
+        <!-- Macaulay Station -->
+        <div class="station-panel" id="macaulay-panel">
+            <div class="station-name">Macaulay</div>
+            <div class="direction">→ City Loop</div>
+            <div class="time-display">
+                <div class="minutes" id="macaulay-minutes">--</div>
+                <div class="minutes-label">Minutes</div>
+            </div>
+            <div class="status loading" id="macaulay-status">Loading...</div>
+            <div class="destination" id="macaulay-destination"></div>
+        </div>
+
+        <!-- Kensington Station -->
+        <div class="station-panel" id="kensington-panel">
+            <div class="station-name">Kensington</div>
+            <div class="direction">→ City Loop</div>
+            <div class="time-display">
+                <div class="minutes" id="kensington-minutes">--</div>
+                <div class="minutes-label">Minutes</div>
+            </div>
+            <div class="status loading" id="kensington-status">Loading...</div>
+            <div class="destination" id="kensington-destination"></div>
+        </div>
+    </div>
+
+    <div class="last-updated" id="last-updated">
+        Last updated: --
+    </div>
+
+    <script>
+        const STATIONS = {
+            macaulay: 1109,
+            kensington: 1093
+        };
+
+        const CITY_LOOP_STATIONS = [
+            'Flinders Street',
+            'Southern Cross',
+            'Flagstaff',
+            'Melbourne Central',
+            'Parliament'
+        ];
+
+        async function fetchNextTrain(stationId) {
+            try {
+                const response = await fetch(`https://ptv.jontyleslie.workers.dev/?stop=${stationId}`);
+                const data = await response.json();
+
+                console.log(`Station ${stationId} data:`, data);
+
+                if (!data.departures || data.departures.length === 0) {
+                    console.log('No departures found');
+                    return null;
+                }
+
+                data.departures.slice(0, 5).forEach(dep => {
+                    const direction = data.directions?.[dep.direction_id]?.direction_name || '';
+                    console.log(`Train direction: ${direction}`);
+                });
+
+                const cityBoundTrains = data.departures.filter(dep => {
+                    const direction = data.directions?.[dep.direction_id]?.direction_name || '';
+                    const isToCity = dep.direction_id === 1 || 
+                                    CITY_LOOP_STATIONS.some(station => direction.includes(station));
+                    return isToCity;
+                });
+
+                console.log(`City bound trains found: ${cityBoundTrains.length}`);
+
+                if (cityBoundTrains.length === 0) {
+                    console.log('No city-bound trains matched, using first available');
+                    const firstTrain = data.departures[0];
+                    const time = firstTrain.estimated_departure_utc || firstTrain.scheduled_departure_utc;
+                    
+                    if (!time) return null;
+
+                    const diff = new Date(time).getTime() - Date.now();
+                    const minutes = Math.max(0, Math.ceil(diff / 60000));
+
+                    const direction = data.directions?.[firstTrain.direction_id]?.direction_name || '';
+
+                    return {
+                        minutes,
+                        destination: direction,
+                        routeId: firstTrain.route_id
+                    };
+                }
+
+                const nextTrain = cityBoundTrains[0];
+                const time = nextTrain.estimated_departure_utc || nextTrain.scheduled_departure_utc;
+                
+                if (!time) return null;
+
+                const diff = new Date(time).getTime() - Date.now();
+                const minutes = Math.max(0, Math.ceil(diff / 60000));
+
+                const direction = data.directions?.[nextTrain.direction_id]?.direction_name || '';
+                const routeId = nextTrain.route_id;
+
+                return {
+                    minutes,
+                    destination: direction,
+                    routeId
+                };
+            } catch (error) {
+                console.error('Error fetching train data:', error);
+                return null;
+            }
+        }
+
+        function updateDisplay(station, trainData) {
+            const minutesEl = document.getElementById(`${station}-minutes`);
+            const statusEl = document.getElementById(`${station}-status`);
+            const destinationEl = document.getElementById(`${station}-destination`);
+            const panelEl = document.getElementById(`${station}-panel`);
+
+            if (!trainData) {
+                minutesEl.textContent = '--';
+                statusEl.textContent = 'No Data';
+                statusEl.className = 'status loading';
+                destinationEl.textContent = '';
+                return;
+            }
+
+            panelEl.classList.add('updated');
+            setTimeout(() => panelEl.classList.remove('updated'), 500);
+
+            minutesEl.textContent = trainData.minutes;
+            destinationEl.textContent = `To ${trainData.destination}`;
+
+            if (trainData.minutes === 0) {
+                statusEl.textContent = 'NOW!';
+                statusEl.className = 'status now';
+            } else if (trainData.minutes <= 2) {
+                statusEl.textContent = 'Arriving!';
+                statusEl.className = 'status soon';
+            } else if (trainData.minutes <= 5) {
+                statusEl.textContent = 'Coming Soon';
+                statusEl.className = 'status soon';
+            } else {
+                statusEl.textContent = 'On Time';
+                statusEl.className = 'status upcoming';
+            }
+        }
+
+        async function updateAllTrains() {
+            const macaulayData = await fetchNextTrain(STATIONS.macaulay);
+            const kensingtonData = await fetchNextTrain(STATIONS.kensington);
+
+            updateDisplay('macaulay', macaulayData);
+            updateDisplay('kensington', kensingtonData);
+
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-AU', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('last-updated').textContent = `Last updated: ${timeString}`;
+        }
+
+        updateAllTrains();
+
+        setInterval(updateAllTrains, 30000);
+
+        setInterval(() => {
+            const macaulayMinutes = document.getElementById('macaulay-minutes');
+            const kensingtonMinutes = document.getElementById('kensington-minutes');
+
+            if (macaulayMinutes.textContent !== '--' && macaulayMinutes.textContent !== '0') {
+                const current = parseInt(macaulayMinutes.textContent);
+                if (!isNaN(current) && current > 0) {
+                }
+            }
+
+            if (kensingtonMinutes.textContent !== '--' && kensingtonMinutes.textContent !== '0') {
+                const current = parseInt(kensingtonMinutes.textContent);
+                if (!isNaN(current) && current > 0) {
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

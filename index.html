@@ -88,8 +88,6 @@
         body {
             font-family: 'Raleway', sans-serif;
             background: #313438;
-            /* background-image:
-                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255, 255, 255, 0.01) 2px, rgba(255, 255, 255, 0.01) 4px); */
             color: white;
             overflow-x: hidden;
             min-height: 100vh;
@@ -339,7 +337,6 @@
         body.simple-mode[data-theme] .footer {
             background: rgb(207, 207, 207);
             border: 2px solid rgba(0, 0, 0, 0.08);
-            /* border: 2px solid rgba(0, 0, 0, 0.08); */
         }
 
         @media (max-width: 768px) {
@@ -463,13 +460,6 @@
             backdrop-filter: none;
         }
 
-        @media (max-width: 768px) {
-            body.kindle-mode .footer {
-                left: 18px;
-                transform: none;
-            }
-        }
-
         .container {
             display: grid;
             gap: 0;
@@ -576,13 +566,6 @@
             border: 2px solid #e0e0e0;
             color: #666666;
             backdrop-filter: none;
-        }
-
-        @media (max-width: 768px) {
-            body.simple-mode .footer {
-                left: 18px;
-                transform: none;
-            }
         }
 
         @media (max-width: 768px) {
@@ -1537,6 +1520,54 @@
     </div>
 
     <script>
+        // ============================================================
+        // URL PARAMETER SUPPORT
+        // All settings can be preset via URL for TV/Fire Stick installs.
+        //
+        // PARAMETERS:
+        //   count          Number of station panels: 1, 2, 3, or 4
+        //   stations       Comma-separated station IDs (e.g. 1028,1107)
+        //   stationNames   Comma-separated station name fragments
+        //                  (e.g. "Flinders,Richmond" — partial match OK)
+        //   theme          Display mode: "simple", "kindle", or "default"
+        //   color          Color theme name (see list below)
+        //   fullscreen     "true" or "1" to start in fullscreen
+        //
+        // COLOR THEME NAMES:
+        //   default, cream-teal, sage-purple, yellow-navy, lime-forest,
+        //   slate-blue, peach-brown, gold-navy, mint-navy, yellow-black, sky-coral
+        //
+        // EXAMPLES:
+        //   Single station, fullscreen, kindle mode, mint-navy theme:
+        //   ?count=1&stations=1028&theme=kindle&fullscreen=true&color=mint-navy
+        //
+        //   Two stations by name, simple mode:
+        //   ?count=2&stationNames=Flinders+Street,Richmond&theme=simple
+        //
+        //   Four stations by ID, yellow-black theme:
+        //   ?count=4&stations=1028,1107,1071,1144&color=yellow-black
+        //
+        //   Just override stations without touching other settings:
+        //   ?stations=1028,1107
+        //
+        // NOTE: URL params take priority over localStorage saved settings.
+        //       Changing settings in the UI will still update localStorage
+        //       for next time (without URL params).
+        // ============================================================
+
+        // Parse URL params early so they're available throughout init
+        const _urlParams = (function() {
+            const p = new URLSearchParams(window.location.search);
+            return {
+                count:        p.get('count'),
+                stations:     p.get('stations'),
+                stationNames: p.get('stationNames'),
+                theme:        p.get('theme'),
+                color:        p.get('color'),
+                fullscreen:   p.get('fullscreen')
+            };
+        })();
+
         let allStations = [];
         let stationCount = 2;
         let selectedStations = [1028, 1107];
@@ -1678,6 +1709,7 @@
             }
         });
 
+        // ---- Theme initialisation (localStorage first, URL params override below) ----
         const themeToggle = document.getElementById('theme-toggle');
         const savedTheme = localStorage.getItem('trainTheme');
         const savedColorTheme = localStorage.getItem('colorTheme');
@@ -1688,8 +1720,7 @@
         } else if (savedTheme === 'kindle') {
             document.body.classList.add('kindle-mode');
             themeToggle.textContent = 'Simple';
-        }
-        else {
+        } else {
             document.body.classList.add('simple-mode');
             themeToggle.textContent = 'Kindle';
         }
@@ -1698,6 +1729,56 @@
             document.body.setAttribute('data-theme', savedColorTheme);
         }
 
+        // ---- Apply URL theme params (override localStorage) ----
+        if (_urlParams.theme) {
+            const t = _urlParams.theme.toLowerCase();
+            document.body.classList.remove('simple-mode', 'kindle-mode');
+            if (t === 'simple') {
+                document.body.classList.add('simple-mode');
+                themeToggle.textContent = 'Kindle';
+            } else if (t === 'kindle') {
+                document.body.classList.add('kindle-mode');
+                themeToggle.textContent = 'Simple';
+            }
+            // 'default' = no extra class (dark mode)
+        }
+
+        if (_urlParams.color) {
+            const c = _urlParams.color.toLowerCase();
+            if (c === 'default') {
+                document.body.removeAttribute('data-theme');
+            } else {
+                document.body.setAttribute('data-theme', c);
+            }
+        }
+
+        if (_urlParams.fullscreen === 'true' || _urlParams.fullscreen === '1') {
+            document.body.classList.add('fullscreen-mode');
+            fullscreenBtn.textContent = 'Exit';
+        }
+
+        // ---- Override station IDs from URL before list loads ----
+        if (_urlParams.count) {
+            const urlCount = Math.min(4, Math.max(1, parseInt(_urlParams.count)));
+            if (!isNaN(urlCount)) {
+                stationCount = urlCount;
+                document.getElementById('station-count').value = urlCount;
+            }
+        }
+
+        if (_urlParams.stations) {
+            const ids = _urlParams.stations.split(',')
+                .map(s => parseInt(s.trim()))
+                .filter(n => !isNaN(n));
+            if (ids.length > 0) {
+                // Pad or trim to match stationCount
+                selectedStations = Array.from({ length: stationCount }, (_, i) =>
+                    ids[i] !== undefined ? ids[i] : ids[ids.length - 1]
+                );
+            }
+        }
+
+        // ---- Theme toggle button handler ----
         themeToggle.addEventListener('click', () => {
             if (document.body.classList.contains('simple-mode')) {
                 document.body.classList.remove('simple-mode');
@@ -1708,16 +1789,18 @@
                 startUpdates();
             } else {
                 document.body.classList.add('simple-mode');
+                document.body.classList.remove('kindle-mode');
                 themeToggle.textContent = 'Kindle';
                 localStorage.setItem('trainTheme', 'simple');
-                // document.querySelector('.station-selector').style.display = 'visible';
-                // startUpdates();
             }
         });
 
+        // ---- Color theme boxes ----
         document.querySelectorAll('.theme-color-box').forEach(box => {
             const theme = box.dataset.theme;
-            if (theme === savedColorTheme || (!savedColorTheme && theme === 'default')) {
+            // Determine active state: URL param takes priority, then localStorage
+            const activeTheme = _urlParams.color || savedColorTheme || 'default';
+            if (theme === activeTheme || (!activeTheme && theme === 'default')) {
                 box.classList.add('active');
             }
 
@@ -1849,6 +1932,26 @@
                         a.stop_name.localeCompare(b.stop_name)
                     );
 
+                    // ---- Resolve stationNames URL param now that list is loaded ----
+                    if (_urlParams.stationNames) {
+                        const names = _urlParams.stationNames.split(',').map(s => s.trim().toLowerCase());
+                        const resolvedIds = names.map(name => {
+                            const match = allStations.find(s => {
+                                const clean = s.stop_name.toLowerCase()
+                                    .replace(' railway station', '')
+                                    .replace(' station', '');
+                                return clean === name || clean.includes(name) || s.stop_name.toLowerCase().includes(name);
+                            });
+                            return match ? match.stop_id : null;
+                        }).filter(id => id !== null);
+
+                        if (resolvedIds.length > 0) {
+                            selectedStations = Array.from({ length: stationCount }, (_, i) =>
+                                resolvedIds[i] !== undefined ? resolvedIds[i] : resolvedIds[resolvedIds.length - 1]
+                            );
+                        }
+                    }
+
                     updateStationCount(stationCount);
                 }
             } catch (error) {
@@ -1974,8 +2077,6 @@
         }
 
         async function updateAllTrains() {
-            const isKindle = document.body.classList.contains('kindle-mode');
-
             const promises = selectedStations.map(stationId => fetchTrains(stationId));
             const results = await Promise.all(promises);
 
